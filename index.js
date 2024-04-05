@@ -1,61 +1,142 @@
-import inquirer from "inquirer";
-;
-//array
-const todolist = [];
-//function
-async function mainMenu() {
-    const { action } = await inquirer.prompt({
-        type: "list",
-        name: "action",
-        message: "what would you like to do?",
-        choices: ["Add Task", "View List", "Mark as completed", "Delete Task", "Exit"]
-    });
-    switch (action) {
-        case 'Add Task':
-            await addTask();
-            break;
-        case 'View List':
-            await viewList();
-            break;
-        case 'Mark as completed':
-            await markCompleted();
-            break;
-        //  case 'Delete Task':
-        //     await deleteTask()
-        //      break;
-        case 'Exit':
-            console.log('Goodbye');
-            return;
-    }
-    mainMenu();
+#! /usr/bin/env node
+import inquirer from 'inquirer';
+import chalk from "chalk";
+let todoList = [];
+console.log(chalk.magentaBright.italic("** WELLCOM TO TODO APP **\n"));
+function addTask(task) {
+    todoList.push({ task, completed: false });
 }
-let addTask = async () => {
-    let { task } = await inquirer.prompt({
+function addMoreTasks(tasks) {
+    tasks.forEach(task => {
+        addTask(task);
+        console.log(chalk.yellow.bold("Add Tasks successfully."));
+    });
+}
+function updateTask(index, newTask) {
+    if (index >= 0 && index < todoList.length) {
+        todoList[index].task = newTask;
+        console.log(chalk.blue.dim("\nTask updated successfully."));
+    }
+    else {
+        console.log(chalk.bgRed("\nInvalid task index."));
+    }
+}
+function viewTasks() {
+    if (todoList.length === 0) {
+        console.log(chalk.red.bold("No tasks in the list."));
+    }
+    else {
+        console.log("Todo List:");
+        todoList.forEach((task, index) => {
+            console.log(`${index + 1}. ${task.completed ? '[X]' : '[ ]'} ${task.task}`);
+        });
+    }
+}
+function markAsCompleted(index) {
+    if (index >= 0 && index < todoList.length) {
+        todoList[index].completed = true;
+        console.log(chalk.cyan.dim("\nTask marked as completed."));
+    }
+    else {
+        console.log(chalk.underline.red("\nInvalid task index."));
+    }
+}
+function deleteTask(index) {
+    if (index >= 0 && index < todoList.length) {
+        todoList.splice(index, 1);
+        console.log(chalk.bgBlack("\nTask deleted successfully."));
+    }
+    else {
+        console.log(chalk.underline.red("\nInvalid task index."));
+    }
+}
+async function main() {
+    console.log(chalk.bgWhiteBright("\nTodo App Menu:"));
+    console.log(chalk.cyan("1. Add task"));
+    console.log(chalk.cyan("2. Add more tasks"));
+    console.log(chalk.cyan("3. Update task"));
+    console.log(chalk.cyan("4. View tasks"));
+    console.log(chalk.cyan("5. Mark task as completed"));
+    console.log(chalk.cyan("6. Delete task"));
+    console.log(chalk.cyan("7. Exit"));
+    while (true) {
+        const { choice } = await inquirer.prompt([{
+                type: 'input',
+                name: 'choice',
+                message: chalk.blueBright.dim('Enter your choice:')
+            }]);
+        switch (choice) {
+            case '1':
+                await addTaskPrompt();
+                break;
+            case '2':
+                await addMoreTasksPrompt();
+                break;
+            case '3':
+                await updateTaskPrompt();
+                break;
+            case '4':
+                viewTasks();
+                break;
+            case '5':
+                await markAsCompletedPrompt();
+                break;
+            case '6':
+                await deleteTaskPrompt();
+                break;
+            case '7':
+                console.log(chalk.blueBright("\nExiting..."));
+                return;
+            default:
+                console.log(chalk.redBright.underline("\Invalid choice. Please try again."));
+        }
+    }
+}
+async function addTaskPrompt() {
+    const { task } = await inquirer.prompt({
         type: 'input',
         name: 'task',
-        message: 'Enter your Task',
+        message: chalk.bgBlack.italic('\nEnter your task:')
     });
-    todolist.push({ task, completed: true });
-    console.log("task added successfuly");
-};
-let viewList = () => {
-    console.log("**** To Do List ****");
-    todolist.forEach((item, index) => {
-        console.log(`${index + 1}.[${item.completed ? 'x' : ''}] ${item.task}`);
+    addTask(task);
+}
+async function addMoreTasksPrompt() {
+    const { tasks } = await inquirer.prompt({
+        type: 'input',
+        name: 'tasks',
+        message: chalk.green.dim('\nEnter tasks separated by commas:')
     });
-    console.log("*****************************");
-};
-let markCompleted = async () => {
-    let { myIndex } = await inquirer.prompt([{
-            type: "number",
-            name: "myIndex",
-            message: "Which task you wont to mark as completed ?",
-        }]);
-    if (myIndex < 1 || todolist.length) {
-        console.log("Invalid task number. 'please try again'");
-        return;
-    }
-    todolist[myIndex - 1].completed = true;
-    console.log("task mark as completed ");
-};
-mainMenu();
+    addMoreTasks(tasks.split(','));
+}
+async function updateTaskPrompt() {
+    const { index, newTask } = await inquirer.prompt([
+        {
+            type: 'input',
+            name: 'index',
+            message: chalk.yellowBright.bold('\nEnter task index to update:')
+        },
+        {
+            type: 'input',
+            name: 'newTask',
+            message: chalk.green.underline('\nEnter new task:')
+        }
+    ]);
+    updateTask(parseInt(index) - 1, newTask);
+}
+async function markAsCompletedPrompt() {
+    const { index } = await inquirer.prompt({
+        type: 'input',
+        name: 'index',
+        message: chalk.magentaBright.italic('\nEnter task index to mark as completed:')
+    });
+    markAsCompleted(parseInt(index) - 1);
+}
+async function deleteTaskPrompt() {
+    const { index } = await inquirer.prompt({
+        type: 'input',
+        name: 'index',
+        message: chalk.red.bold.strikethrough('\nEnter task index to delete:')
+    });
+    deleteTask(parseInt(index) - 1);
+}
+main();
