@@ -1,14 +1,14 @@
 {
-	"name": "todo_list_app",
+	"name": "shehreen05_todo_list_app",
 	"version": "1.0.0",
-	"description": "",
+	"description": "This is a TODO APP in this user can perform opration add task, add more tasks,update tasks, view tasks, mark as completed, delete tasks and exit to exit from the tasks. ",
 	"main": "index.cjs",
 	"type": "module",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"keywords": [],
-	"author": "",
+	"author": "shehreen",
 	"license": "ISC",
 	"devDependencies": {
 		"@types/inquirer": "^9.0.7",
